@@ -1,0 +1,45 @@
+--// FPS Lock Script (Auto Maintain FPS = 15)
+-- Tác giả: Zbie_AnNhien & Nhân
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- Đợi cho tới khi nhân vật và HumanoidRootPart sẵn sàng
+repeat task.wait(1)
+until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+-- Cảnh báo nếu executor không hỗ trợ
+if not setfpscap then
+    warn("⚠️ Executor của bạn không hỗ trợ setfpscap().")
+    return
+end
+
+-- Biến theo dõi FPS
+local lastFPS = 0
+local targetCap = 15
+setfpscap(targetCap)
+print("✅ FPS đã bị giới hạn ở " .. targetCap .. " sau khi nhân vật load xong.")
+
+-- Hàm tính FPS hiện tại
+local frameTimes = {}
+RunService.RenderStepped:Connect(function()
+    local t = tick()
+    frameTimes[#frameTimes + 1] = t
+    for i = #frameTimes, 1, -1 do
+        if t - frameTimes[i] > 1 then
+            table.remove(frameTimes, i)
+        end
+    end
+end)
+
+-- Kiểm tra FPS liên tục
+task.spawn(function()
+    while task.wait(2) do -- kiểm tra mỗi 2 giây
+        local currentFPS = #frameTimes
+        if currentFPS > 20 then
+            setfpscap(targetCap)
+            print(("⚙️ FPS vượt %d (hiện tại %d) — tự giới hạn lại %d."):format(20, currentFPS, targetCap))
+        end
+    end
+end)

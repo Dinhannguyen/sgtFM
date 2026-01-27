@@ -1,0 +1,57 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+print("🔄 Đang load Fragments từ DATA...")
+
+-- Chờ DATA
+local Data = player:WaitForChild("Data", 20)
+if not Data then
+    print("❌ KHÔNG TÌM THẤY DATA! Rejoin đi.")
+    return
+end
+
+-- Lấy Fragments
+local Fragments = Data:WaitForChild("Fragments", 10)
+if not Fragments then
+    print("❌ FRAGMENTS: N/A (Sea 1 hoặc acc mới?)")
+    return
+end
+
+print("\n=== FRAGMENTS HIỆN TẠI ===")
+print("Fragments: " .. Fragments.Value)
+print("==========================")
+
+-- Gửi file Completed-Fragments
+local fileSent = false
+local function sendFile()
+	if fileSent then return end
+	local filename = player.Name .. ".txt"
+	if not isfile(filename) then
+		local success, _ = pcall(function()
+			writefile(filename, "Completed-Fragments")
+		end)
+		if success then
+			fileSent = true
+			print("✅ Đã tạo file:", filename, "nội dung: Completed-Fragments")
+		else
+			warn("⚠️ Không thể ghi file:", filename)
+		end
+	else
+		fileSent = true
+	end
+end
+
+-- Auto update và check mỗi 3 giây
+spawn(function()
+	while true do
+		wait(3)
+		print("\n🔄 UPDATE FRAGMENTS: " .. Fragments.Value)
+		
+		-- Khi đủ 5000 fragments thì gửi file
+		if Fragments.Value >= 5000 then
+			sendFile()
+		end
+	end
+end)
+
+print("✅ Script đang theo dõi Fragments! Mở F9 để xem cập nhật.")

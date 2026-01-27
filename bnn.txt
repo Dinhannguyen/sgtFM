@@ -1,0 +1,137 @@
+repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+-- Chờ player spawn
+local root
+local function waitForSpawn()
+    repeat task.wait(1) until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    root = player.Character:FindFirstChild("HumanoidRootPart")
+    repeat task.wait(0.5) until root and root.Position
+    print("✅ Player spawn tại:", root.Position)
+end
+
+waitForSpawn()
+
+-- Danh sách fruit cần kiểm tra
+local fruitList = {
+    "Magma-Magma","Ghost-Ghost","Rubber-Rubber","Light-Light",
+    "Diamond-Diamond","Eagle-Eagle","Dark-Dark","Sand-Sand",
+    "Ice-Ice","Flame-Flame","Spike-Spike","Smoke-Smoke",
+    "Bomb-Bomb","Spring-Spring","Blade-Blade","Spin-Spin","Rocket-Rocket"
+}
+
+-- Lấy inventory
+local function getInventory()
+    local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+    if not remotes then return {} end
+    local commF = remotes:FindFirstChild("CommF_")
+    if not commF or not commF.InvokeServer then return {} end
+    local ok, inv = pcall(function() return commF:InvokeServer("getInventory") end)
+    return ok and typeof(inv) == "table" and inv or {}
+end
+
+-- Lấy backpack
+local function getBackpack()
+    local bp = player:FindFirstChild("Backpack")
+    return bp and bp:GetChildren() or {}
+end
+
+-- Kiểm tra có fruit trong list không
+local function hasFruit()
+    local inv = getInventory()
+    local bp = getBackpack()
+    local owned = {}
+    for _, item in ipairs(inv) do
+        local name = tostring(item.Name or item.name or ""):lower()
+        owned[name] = true
+    end
+    for _, item in ipairs(bp) do
+        local name = tostring(item.Name or item.Name or ""):lower()
+        owned[name] = true
+    end
+    for _, f in ipairs(fruitList) do
+        if owned[f:lower()] then
+            return true
+        end
+    end
+    return false
+end
+
+-- Check 2 lần trước khi chạy script
+local check1, check2
+check1 = hasFruit()
+task.wait(2)
+check2 = hasFruit()
+
+local runScript1 = check1 or check2
+
+-- Hop server function (Script1)
+local function hopServer(maxRetries)
+    maxRetries = maxRetries or 30
+    local retries = 0
+    local HttpService = game:GetService("HttpService")
+    while retries < maxRetries do
+        retries = retries + 1
+        local ok, servers = pcall(function()
+            local url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+            local res = game:HttpGet(url)
+            return HttpService:JSONDecode(res).data
+        end)
+        if ok and servers then
+            for _, s in ipairs(servers) do
+                if s.id ~= game.JobId and s.playing < s.maxPlayers then
+                    local success, err = pcall(function()
+                        TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, player)
+                    end)
+                    if success then return true end
+                end
+            end
+        end
+        task.wait(2)
+    end
+    player:Kick("Không thể hop server sau "..maxRetries.." lần")
+end
+
+-- Load Script 1
+local function runScript1Func()
+    print("✅ Chạy Script 1")
+    getgenv().Config = {["Get Fruit In Inventory Low Beli"] = true, ["Auto Raid"] = true}
+    getgenv().Key = "1fac947ad1d37c7fc21830fd"
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+
+    -- Quan sát inventory + backpack mỗi 2s
+    spawn(function()
+        while true do
+            task.wait(2)
+            local hasAny = hasFruit()
+            if not hasAny then
+                print("⚠️ Không còn fruit nào! Bắt đầu đếm ngược 6 phút...")
+                for i = 360, 0, -1 do
+                    print("⏳ Đếm ngược:", i, "giây")
+                    task.wait(1)
+                end
+                print("🚀 Hop server...")
+                hopServer(30)
+                break
+            end
+        end
+    end)
+end
+
+-- Load Script 2
+local function runScript2Func()
+    print("✅ Chạy Script 2")
+    getgenv().Config = {["Auto Raid"] = true, ["Hop Sever Raid"] = true}
+    getgenv().Key = "1fac947ad1d37c7fc21830fd"
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+end
+
+-- Quyết định chạy script
+if runScript1 then
+    runScript1Func()
+else
+    runScript2Func()
+end
