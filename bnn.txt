@@ -99,7 +99,7 @@ end
 local function runScript1Func()
     print("✅ Chạy Script 1")
     getgenv().Config = {["Get Fruit In Inventory Low Beli"] = true, ["Auto Raid"] = true}
-    getgenv().Key = "1fac947ad1d37c7fc21830fd"
+    getgenv().Key = "e9162fb60364a89d94d75009"
     loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
 
     -- Quan sát inventory + backpack mỗi 2s
@@ -125,7 +125,7 @@ end
 local function runScript2Func()
     print("✅ Chạy Script 2")
     getgenv().Config = {["Auto Raid"] = true, ["Hop Sever Raid"] = true}
-    getgenv().Key = "1fac947ad1d37c7fc21830fd"
+    getgenv().Key = "e9162fb60364a89d94d75009"
     loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
 end
 
@@ -135,3 +135,4 @@ if runScript1 then
 else
     runScript2Func()
 end
+
