@@ -44,7 +44,7 @@ end
 -- Auto update và check mỗi 3 giây
 spawn(function()
 	while true do
-		wait(3)
+		wait(10)
 		print("\n🔄 UPDATE FRAGMENTS: " .. Fragments.Value)
 		
 		-- Khi đủ 5000 fragments thì gửi file
@@ -55,3 +55,4 @@ spawn(function()
 end)
 
 print("✅ Script đang theo dõi Fragments! Mở F9 để xem cập nhật.")
+
