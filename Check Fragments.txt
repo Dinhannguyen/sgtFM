@@ -48,7 +48,7 @@ spawn(function()
 		print("\n🔄 UPDATE FRAGMENTS: " .. Fragments.Value)
 		
 		-- Khi đủ 5000 fragments thì gửi file
-		if Fragments.Value >= 10000 then
+		if Fragments.Value >= 5000 then
 			sendFile()
 		end
 	end
