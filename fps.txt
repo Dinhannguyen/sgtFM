@@ -17,7 +17,7 @@ end
 
 -- Biến theo dõi FPS
 local lastFPS = 0
-local targetCap = 15
+local targetCap = 10
 setfpscap(targetCap)
 print("✅ FPS đã bị giới hạn ở " .. targetCap .. " sau khi nhân vật load xong.")
 
@@ -37,7 +37,7 @@ end)
 task.spawn(function()
     while task.wait(2) do -- kiểm tra mỗi 2 giây
         local currentFPS = #frameTimes
-        if currentFPS > 20 then
+        if currentFPS > 15 then
             setfpscap(targetCap)
             print(("⚙️ FPS vượt %d (hiện tại %d) — tự giới hạn lại %d."):format(20, currentFPS, targetCap))
         end
